@@ -3,6 +3,7 @@ package org.channelFuture3.close;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
@@ -12,11 +13,8 @@ import io.netty.handler.codec.string.StringEncoder;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Scanner;
-/**
- * 解决确保保证关闭了进行的一些善后操作。
- * 因为线程进行close需要一定时间，并且close是异步的，因此要保证close完毕后才往下执行。
- * */
-public class MyClientSync {
+
+public class MyClientAddListener {
     public static void main(String[] args) throws IOException, InterruptedException {
         // 创建EventLoopGroup，使用完毕后关闭
         NioEventLoopGroup group = new NioEventLoopGroup();
@@ -58,13 +56,19 @@ public class MyClientSync {
         ChannelFuture closeFuture = channel.closeFuture();
         System.out.println("waiting close...");
 
-        // 同步等待NIO线程执行完close操作，解锁
-        closeFuture.sync();
-
-        // 关闭之后执行一些操作，可以保证执行的操作一定是在channel关闭以后执行的
-        System.out.println("关闭之后执行一些额外操作...");
+        closeFuture.addListener(new ChannelFutureListener() {
+            @Override
+            public void operationComplete(ChannelFuture channelFuture) throws Exception {
+                // 等待channel关闭后才执行的操作，还是NIO线程中执行，因为是NIO线程调用的close()
+                System.out.println("关闭之后执行一些额外操作...");
+                // 关闭EventLoopGroup
+                group.shutdownGracefully();
+            }
+        });
 
         // 关闭EventLoopGroup
         group.shutdownGracefully();
     }
+
+
 }

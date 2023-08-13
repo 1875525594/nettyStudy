@@ -1,4 +1,4 @@
-package org.channelFuture3.close;
+package org.Handler与Pipeline5;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
@@ -12,6 +12,7 @@ import io.netty.handler.codec.string.StringEncoder;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Scanner;
+
 /**
  * 解决确保保证关闭了进行的一些善后操作。
  * 因为线程进行close需要一定时间，并且close是异步的，因此要保证close完毕后才往下执行。

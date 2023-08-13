@@ -28,6 +28,6 @@ public class TestEventLoop {
             System.out.println(Thread.currentThread().getName() + " hello3");
         }, 0, 1, TimeUnit.SECONDS);
         // 优雅地关闭
-        //group.shutdownGracefully();
+        group.shutdownGracefully();
     }
 }
